@@ -683,7 +683,7 @@ namespace PLH {
 	};
 }
 
-
+#if POLYHOOK_ENABLE_IMPLEMENTATION
 ////////////////////////////////BEGIN IMPLEMENTATION////////////////////////////////
 /*Until C++xy release modules I will keep the implementation in the header. This is
 a design decision to make it easier for a user to include PolyHook. Since polyhook
@@ -1748,5 +1748,7 @@ PLH::MemoryProtect::~MemoryProtect()
 {
 	Protect(m_Address, m_Size, m_OldProtection);
 }
+
+#endif
 
 #endif//end include guard
