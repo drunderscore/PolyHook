@@ -124,14 +124,14 @@ namespace PLH {
 
 				THREADENTRY32 te;
 				te.dwSize = sizeof(te);
-				BOOL Result = FALSE;
+				bool Result = false;
 				//Loop threads
-				for (Result = Thread32First(h, &te), te.dwSize = sizeof(te); Result == TRUE && Thread32Next(h, &te); )
+				for (Result = !!Thread32First(h, &te), te.dwSize = sizeof(te); !!Result && !!Thread32Next(h, &te); )
 				{
 					//Verify size field was set properly
 					if (te.dwSize < RTL_SIZEOF_THROUGH_FIELD(THREADENTRY32, th32OwnerProcessID))
 						continue;
-					
+
 					if (te.th32ThreadID != CallingThreadId && te.th32OwnerProcessID == GetCurrentProcessId())
 						m_SuspendedThreads.emplace_back(te.th32ThreadID, THREAD_SUSPEND_RESUME);
 				}
@@ -196,7 +196,7 @@ namespace PLH {
 			//Sanity check the delta is less than 2GB
 			if (Allocated != nullptr)
 			{
-				AllocationDelta = std::abs(pStart - Allocated);
+				AllocationDelta = std::abs(pStart - (uint8_t*)Allocated);
 				if (AllocationDelta > MaxAllocationDelta)
 				{
 					//Out of range, free then return
@@ -835,7 +835,7 @@ void PLH::AbstractDetour::RelocateASM(uint8_t* Code, uint_fast32_t* CodeSize, co
 					continue;
 
 				//Are we relative to instruction pointer?
-				if (op->mem.base != GetIpReg())
+				if (op->mem.base != (unsigned int)GetIpReg())
 					continue;
 
 				_Relocate(CurIns, From, To, x86->offsets.displacement_size, x86->offsets.displacement_offset);
@@ -863,7 +863,7 @@ void PLH::AbstractDetour::RelocateASM(uint8_t* Code, uint_fast32_t* CodeSize, co
 
 	PLH::Tools::XTrace("\nFixed Trampoline\n");
 	InstructionCount = cs_disasm(m_CapstoneHandle, Code, *CodeSize, (uint64_t)Code, 0, &InstructionInfo);
-	for (int i = 0; i < InstructionCount; i++)
+	for (size_t i = 0; i < InstructionCount; i++)
 	{
 		cs_insn* CurIns = (cs_insn*)&InstructionInfo[i];
 
