@@ -1627,6 +1627,8 @@ bool PLH::VEHHook::Hook()
 	return true;
 }
 
+#pragma warning(push)
+#pragma warning(disable : 4189)    // GenerateExceptionRead
 void PLH::VEHHook::UnHook()
 {
 	std::lock_guard<std::mutex> m_Lock(m_TargetMutex);
@@ -1660,6 +1662,7 @@ void PLH::VEHHook::UnHook()
 	m_HookTargets.erase(std::remove(m_HookTargets.begin(), m_HookTargets.end(), m_ThisCtx), m_HookTargets.end());
 	m_Hooked = false;
 }
+#pragma warning(pop)
 
 LONG CALLBACK PLH::VEHHook::VEHHandler(EXCEPTION_POINTERS* ExceptionInfo)
 {
